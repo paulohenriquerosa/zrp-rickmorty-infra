@@ -52,12 +52,12 @@ resource redis 'Microsoft.Cache/Redis@2023-04-01' = {
 resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: kvName
   location: location
+  sku: {
+    family: 'A'
+    name: 'standard'
+  }
   properties: {
     tenantId: subscription().tenantId
-    sku: {
-      family: 'A'
-      name: 'standard'
-    }
     accessPolicies: [
       {
         tenantId: subscription().tenantId
@@ -75,7 +75,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   }
 }
 
-var redisPrimaryKey = listKeys(redis.id, '2023-04-01').primaryKey
+var redisPrimaryKey = redis.listKeys().primaryKey
 var redisConnectionString = 'rediss://:${redisPrimaryKey}@${redis.properties.hostName}:${redis.properties.sslPort}'
 
 resource redisConnSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
