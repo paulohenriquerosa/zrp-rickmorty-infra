@@ -52,12 +52,12 @@ resource redis 'Microsoft.Cache/redis@2023-08-01' = {
 resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: kvName
   location: location
-  sku: {
-    family: 'A'
-    name: 'standard'
-  }
   properties: {
     tenantId: subscription().tenantId
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
     accessPolicies: [
       {
         tenantId: subscription().tenantId
