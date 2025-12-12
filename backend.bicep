@@ -39,12 +39,12 @@ resource apiApp 'Microsoft.Web/sites@2023-01-01' = {
 resource redis 'Microsoft.Cache/redis@2023-08-01' = {
   name: redisName
   location: location
+  sku: {
+    name: 'Basic'
+    family: 'C'
+    capacity: 0
+  }
   properties: {
-    sku: {
-      name: 'Basic'
-      family: 'C'
-      capacity: 0
-    }
     enableNonSslPort: false
   }
 }
@@ -79,14 +79,16 @@ var redisPrimaryKey = redis.listKeys().primaryKey
 var redisConnectionString = 'rediss://:${redisPrimaryKey}@${redis.properties.hostName}:${redis.properties.sslPort}'
 
 resource redisConnSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  name: '${kv.name}/redis-connection'
+  name: 'redis-connection'
+  parent: kv
   properties: {
     value: redisConnectionString
   }
 }
 
 resource apiSettings 'Microsoft.Web/sites/config@2023-01-01' = {
-  name: '${apiApp.name}/appsettings'
+  name: 'appsettings'
+  parent: apiApp
   properties: {
     REDIS_URL: '@Microsoft.KeyVault(SecretUri=${redisConnSecret.properties.secretUriWithVersion})'
     PORT: '3000'
