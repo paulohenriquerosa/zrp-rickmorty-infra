@@ -1,9 +1,10 @@
 param location string = resourceGroup().location
-param namePrefix string = 'rickmorty'
+param namePrefix string = 'zrp-rickmorty-api'
 
 var planName = '${namePrefix}-plan'
 var apiName = '${namePrefix}-api'
 var redisName = toLower('${namePrefix}-redis')
+var kvName = toLower('${namePrefix}-kv')
 
 resource plan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: planName
@@ -24,6 +25,9 @@ resource apiApp 'Microsoft.Web/sites@2023-01-01' = {
   name: apiName
   location: location
   kind: 'app,linux'
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     serverFarmId: plan.id
     siteConfig: {
@@ -45,12 +49,46 @@ resource redis 'Microsoft.Cache/Redis@2023-04-01' = {
   }
 }
 
-var redisUrl = 'rediss://${redis.properties.hostName}:${redis.properties.sslPort}'
+resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
+  name: kvName
+  location: location
+  properties: {
+    tenantId: subscription().tenantId
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        objectId: apiApp.identity.principalId
+        permissions: {
+          secrets: [
+            'get'
+            'list'
+          ]
+        }
+      }
+    ]
+    enabledForTemplateDeployment: true
+    softDeleteRetentionInDays: 7
+  }
+}
+
+var redisPrimaryKey = listKeys(redis.id, '2023-04-01').primaryKey
+var redisConnectionString = 'rediss://:${redisPrimaryKey}@${redis.properties.hostName}:${redis.properties.sslPort}'
+
+resource redisConnSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  name: '${kv.name}/redis-connection'
+  properties: {
+    value: redisConnectionString
+  }
+}
 
 resource apiSettings 'Microsoft.Web/sites/config@2023-01-01' = {
   name: '${apiApp.name}/appsettings'
   properties: {
-    REDIS_URL: redisUrl
+    REDIS_URL: '@Microsoft.KeyVault(SecretUri=${redisConnSecret.properties.secretUriWithVersion})'
     PORT: '3000'
     NODE_ENV: 'production'
   }
@@ -58,3 +96,4 @@ resource apiSettings 'Microsoft.Web/sites/config@2023-01-01' = {
 
 output apiName string = apiApp.name
 output redisHost string = redis.properties.hostName
+output keyVaultName string = kv.name

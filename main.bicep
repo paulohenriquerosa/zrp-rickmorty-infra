@@ -1,5 +1,5 @@
 param location string = resourceGroup().location
-param namePrefix string = 'zrp-rickmorty'
+param namePrefix string = 'zrp-rickmorty-api'
 
 module backend './backend.bicep' = {
   name: 'backend'
@@ -8,8 +8,6 @@ module backend './backend.bicep' = {
     namePrefix: namePrefix
   }
 }
-
-// se quiser, module frontend aqui depois
 
 output apiName string = backend.outputs.apiName
 output redisHost string = backend.outputs.redisHost
