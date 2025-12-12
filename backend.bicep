@@ -36,15 +36,15 @@ resource apiApp 'Microsoft.Web/sites@2023-01-01' = {
   }
 }
 
-resource redis 'Microsoft.Cache/Redis@2023-04-01' = {
+resource redis 'Microsoft.Cache/redis@2023-08-01' = {
   name: redisName
   location: location
-  sku: {
-    name: 'Basic'
-    family: 'C'
-    capacity: 0
-  }
   properties: {
+    sku: {
+      name: 'Basic'
+      family: 'C'
+      capacity: 0
+    }
     enableNonSslPort: false
   }
 }
