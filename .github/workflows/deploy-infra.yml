@@ -14,7 +14,7 @@ jobs:
     env:
       AZURE_RESOURCE_GROUP: zrp
       AZURE_LOCATION: canadacentral
-      BICEP_FILE: infra/main.bicep
+      BICEP_FILE: main.bicep
 
     steps:
       - name: Checkout
