@@ -1,5 +1,5 @@
 param location string = resourceGroup().location
-param namePrefix string = 'zrp-rickmorty-api'
+param namePrefix string = 'zrp-rickmorty'
 
 module backend './backend.bicep' = {
   name: 'backend'
