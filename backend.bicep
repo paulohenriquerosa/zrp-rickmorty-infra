@@ -1,5 +1,5 @@
 param location string = resourceGroup().location
-param namePrefix string = 'zrp-rickmorty-api'
+param namePrefix string = 'zrp-rickmorty'
 
 var planName = '${namePrefix}-plan'
 var apiName = '${namePrefix}-api'
