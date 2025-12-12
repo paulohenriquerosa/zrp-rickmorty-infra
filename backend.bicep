@@ -49,14 +49,14 @@ resource redis 'Microsoft.Cache/redis@2023-08-01' = {
   }
 }
 
-resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
+resource kv 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: kvName
   location: location
   properties: {
     tenantId: subscription().tenantId
     sku: {
       family: 'A'
-      name: 'Standard'
+      name: 'standard'
     }
     accessPolicies: [
       {
@@ -78,7 +78,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
 var redisPrimaryKey = redis.listKeys().primaryKey
 var redisConnectionString = 'rediss://:${redisPrimaryKey}@${redis.properties.hostName}:${redis.properties.sslPort}'
 
-resource redisConnSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+resource redisConnSecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   name: 'redis-connection'
   parent: kv
   properties: {
