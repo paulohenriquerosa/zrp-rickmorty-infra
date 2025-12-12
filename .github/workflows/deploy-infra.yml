@@ -30,6 +30,7 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
+          deploymentName: main-${{ github.run_number }}
           template: ${{ env.BICEP_FILE }}
           parameters: >
             namePrefix=zrp-rickmorty
